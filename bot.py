@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """Group Chat Logger
-
 This bot is a modified version of the echo2 bot found here:
 https://github.com/python-telegram-bot/python-telegram-bot/blob/master/examples/echobot2.py
-
 This bot logs all messages sent in a Telegram Group to a database.
-
 """
 
 from __future__ import print_function
@@ -117,6 +114,19 @@ class TelegramMonitorBot:
             s.commit()
             s.close()
 
+    def status(self, bot, update):
+        """Handle ststus message like 'user joined chat' """
+        status_message = update.message.new_chat_members
+        if status_message != None:
+            update.message.delete()
+            print('Deleted "new chat members" notification')
+
+    def forwarded_handler(sefl, bot, update):
+        """Deleting forwarded messages as spam"""
+        message_forward = update.message.forward_date
+        if message_forward != None:
+            update.message.delete()
+            print('Deleted forwarded message')
 
     def security_check_message(self, bot, update):
         """ Test message for security violations """
@@ -125,12 +135,6 @@ class TelegramMonitorBot:
         message = unidecode.unidecode(update.message.text)
         # TODO: Replace lookalike unicode characters:
         # https://github.com/wanderingstan/Confusables
-        print(update)
-        #handling forwarded messages
-        message_forward = update.message.forward_date
-        if message_forward != None:
-            update.message.delete()
-            print('Got so far')
 
         if self.message_ban_re and self.message_ban_re.search(message):
             # Logging
@@ -281,6 +285,17 @@ class TelegramMonitorBot:
         dp = updater.dispatcher
 
         # on different commands - answer in Telegram
+        
+        #handle status messages before any else
+        dp.add_handler(MessageHandler(
+            Filters.status_update.new_chat_members,
+            lambda bot, update: self.status(bot, update)
+        ))
+        #handling forwarded messages in a separate flow
+        dp.add_handler(MessageHandler(
+            Filters.forwarded,
+            lambda bot, update: self.forwarded_handler(bot, update)
+        ))
 
         # on noncommand i.e message - echo the message on Telegram
         dp.add_handler(MessageHandler(
