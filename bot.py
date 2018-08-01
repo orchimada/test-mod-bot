@@ -149,7 +149,7 @@ class TelegramMonitorBot:
             # Any message that causes a ban gets deleted
             update.message.delete()
             # Ban the user
-            self.ban_user(update)
+            #self.ban_user(update)
             # Log in database
             s = session()
             userBan = UserBan(
