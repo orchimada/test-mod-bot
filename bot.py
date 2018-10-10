@@ -121,12 +121,19 @@ class TelegramMonitorBot:
             update.message.delete()
             print('Deleted "new chat members" notification')
 
-    def forwarded_handler(sefl, bot, update):
+    def forwarded_handler(self, bot, update):
         """Deleting forwarded messages as spam"""
         message_forward = update.message.forward_date
         if message_forward != None:
             update.message.delete()
             print('Deleted forwarded message')
+
+    def attached_handler(self, bot, update):
+        """Deleting forwarded messages as spam"""
+        message_attachement = update.message.document
+        if message_attachement != None:
+            update.message.delete()
+            print('Deleted message with attachements')
 
     def security_check_message(self, bot, update):
         """ Test message for security violations """
@@ -286,15 +293,21 @@ class TelegramMonitorBot:
 
         # on different commands - answer in Telegram
         
-        #handle status messages before any else
+        #check status messages before any else
         dp.add_handler(MessageHandler(
             Filters.status_update.new_chat_members,
             lambda bot, update: self.status(bot, update)
         ))
-        #handling forwarded messages in a separate flow
+        #filter forwarded messages in a separate flow
         dp.add_handler(MessageHandler(
             Filters.forwarded,
             lambda bot, update: self.forwarded_handler(bot, update)
+        ))
+
+        #filter attachements in a separate flow
+        dp.add_handler(MessageHandler(
+            Filters.document,
+            lambda bot, update: self.attached_handler(bot, update)
         ))
 
         # on noncommand i.e message - echo the message on Telegram
