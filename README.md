@@ -1,3 +1,5 @@
+Originally made by the [Origin Protocol](https://www.originprotocol.com/en) you can take the unmodified version from [their repo](https://github.com/OriginProtocol/telegram-moderator).
+
 # Telegram Bot
 
 - Deletes messages matching specified patterns
